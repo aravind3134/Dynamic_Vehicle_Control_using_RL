@@ -1,26 +1,40 @@
-"""Game class to represent Vehicle Simulator state."""
+"""Vehicle_Controller class to represent Vehicle Simulator state."""
 
 import numpy as np
 from random import uniform
 import time
 import matplotlib.pyplot as plt
 
+# The vehicle moves every time with a constant velocity.
 # Defined actions:
-# 1. FORWARD: It takes two values - 0 for braking and
-#                                   1 for moving forward with 0.1 m/s.
-# 2. DIRECTION: It takes two values - 0 for straight
-#                                     1 for right
+# 1. BASED ON DIRECTION: bins of 20 between [100, 400]
+# Actions: 110, 130, 150, 170, 190, 210, 230, 250, 270, 290, 310, 330, 350, 370, 390
+# The values of raw steering angle sensor value from ADC is passed and the expected values of refined raw steering angle
+# sensor values are returned to the algorithm from Deep Reinforcement Learning algorithm.
 # Defined States:
 # [x, y, direction] represents the states that the RL Algorithm should traverse.
 # The vehicle co-ordinates are assumed to be (0, 0) as of now.
 # The direction is assumed to be 0.
 # The initial state is fed from the system. The actions based on the current state determines the next state.
-#     NEXT STATE = CURRENT STATE + RESULT OF FORWARD ACTION + RESULT OF DIRECTION ACTION
+#     NEXT STATE = CURRENT STATE + RESULT OF DIRECTION ACTION
 #
-ACTION_NAMES = ["Forward", "RightLeft"]
-ACTION_FORWARD = 0
-ACTION_DIRECTION = 1
-velocity = 0.1
+ACTION_NAMES = ["110", "130", "150", "170", "190", "210", "230", "250", "270", "290", "310", "330", "350", "370", "390"]
+ACTION_110 = 0
+ACTION_130 = 1
+ACTION_150 = 2
+ACTION_170 = 3
+ACTION_190 = 4
+ACTION_210 = 5
+ACTION_230 = 6
+ACTION_250 = 7
+ACTION_270 = 8
+ACTION_290 = 9
+ACTION_310 = 10
+ACTION_330 = 11
+ACTION_350 = 12
+ACTION_370 = 13
+ACTION_390 = 14
+velocity = 1
 
 class Vehicle_Controller(object):
   """ Initializes the Vehicle controller object"""
@@ -47,23 +61,19 @@ class Vehicle_Controller(object):
     else:
       return False
 
-  def do_action(self, action, move_in_x):
+  def do_action(self, action):
     """ performs action on the current state. """
-    temp_state = self._state
     reward = 0
+    temp_state = self._state
     target_reached = self.goal_reached(self._state, self._target_state)
     if target_reached:
       reward = 1
     self.time_at_last_updation = time.time()
-    if action == ACTION_FORWARD:
-      if move_in_x == 1:
-        forward_movement_x = self._result_of_action_forward_x()
-        self._state[0] = temp_state[0] + forward_movement_x
-      else:
-        forward_movement_y = self._result_of_action_forward_y ()
-        self._state[1] = temp_state[1] + forward_movement_y
-    else:
-      self._state[2] = temp_state[2] + self._result_of_action_direction()
+    forward_movement_x = 1
+    self._state[0] = temp_state[0] + forward_movement_x
+    forward_movement_y = 1
+    self._state[1] = temp_state[1] + forward_movement_y
+    self._state[2] = temp_state[2]
     return reward
 
   def goal_reached(self, state, target_state):
@@ -107,6 +117,7 @@ class Vehicle_Controller(object):
   def print_current_state_and_target(self):
     print("Current State: ", self._state, "\t", "Target: ", self._target_state)
 
+'''
 def main():
     # see if the simulation points are ready to follow. If the flag is set, then the main function invokes.
     # if the data structure has the flag set to 1, then the object is invoked.
@@ -125,15 +136,14 @@ def main():
     for i in target:
       reward = 0
       target_state = i
-      plt.plot (target_state[0], target_state[1], 'ro')
+      plt.plot (target_state[0], target_state[1], 'rx')
       a = Vehicle_Controller(state, target_state, stop_simulation)
       #a.print_current_state_and_target()
       count = 0
       while int(target_state[0]) >= int(a.state()[0]):
         #print(count)
         count = count + 1
-        move_in_x = 1
-        reward = a.do_action(ACTION_FORWARD, move_in_x)
+        reward = a.do_action(ACTION_110)
         #a.print_current_state_and_target()
         ax.scatter (a.state ()[0], a.state ()[1])
         plt.pause (0.1)
@@ -142,7 +152,7 @@ def main():
         #print(count)
         count = count + 1
         move_in_x = 0
-        reward = a.do_action(ACTION_FORWARD, move_in_x)
+        reward = a.do_action(ACTION_110, move_in_x)
         #a.print_current_state_and_target()
         ax.scatter(a.state()[0], a.state()[1])
         plt.pause(0.1)
@@ -150,5 +160,4 @@ def main():
       state = a.state()
       print("Reward: ", reward)
     plt.show()
-if __name__ == "__main__":
-    main()
+'''
