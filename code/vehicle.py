@@ -18,33 +18,36 @@ import matplotlib.pyplot as plt
 # The initial state is fed from the system. The actions based on the current state determines the next state.
 #     NEXT STATE = CURRENT STATE + RESULT OF DIRECTION ACTION
 #
-ACTION_NAMES = ["110", "130", "150", "170", "190", "210", "230", "250", "270", "290", "310", "330", "350", "370", "390"]
-ACTION_110 = 0
-ACTION_130 = 1
-ACTION_150 = 2
-ACTION_170 = 3
-ACTION_190 = 4
-ACTION_210 = 5
-ACTION_230 = 6
-ACTION_250 = 7
-ACTION_270 = 8
-ACTION_290 = 9
-ACTION_310 = 10
-ACTION_330 = 11
-ACTION_350 = 12
-ACTION_370 = 13
-ACTION_390 = 14
+ACTION_NAMES = ["100", "120", "140", "160", "180", "200", "220", "240", "260", "280", "300", "320", "340", "360", "380", "400", ""]
+ACTION_100 = 0
+ACTION_120 = 1
+ACTION_140 = 2
+ACTION_160 = 3
+ACTION_180 = 4
+ACTION_200 = 5
+ACTION_220 = 6
+ACTION_240 = 7
+ACTION_260 = 8
+ACTION_280 = 9
+ACTION_300 = 10
+ACTION_320 = 11
+ACTION_340 = 12
+ACTION_360 = 13
+ACTION_380 = 14
+ACTION_400 = 15
 velocity = 1
+NUM_OF_ACTIONS = len(ACTION_NAMES)
 
 class Vehicle_Controller(object):
   """ Initializes the Vehicle controller object"""
   def __init__(self, state, target_state , stop_simulation):
+    print ("Vehicle Controller Object is created with state: ", state, "and target state: ", target_state)
     self._target_state = target_state
     self.target_state_direction = target_state[2]
     target_state[2] = 0
     self.stop_simulation = stop_simulation
     if state is None and target_state is None:
-      self._state = [0, 0, 0]
+      self._state = [0, 0, 0, 0]
       self.add_random_point_to_follow()
     else:
       self._state = state
@@ -70,38 +73,29 @@ class Vehicle_Controller(object):
       reward = 1
     self.time_at_last_updation = time.time()
     forward_movement_x = 1
-    self._state[0] = temp_state[0] + forward_movement_x
+    self._state[0] = temp_state[0] + 1
     forward_movement_y = 1
-    self._state[1] = temp_state[1] + forward_movement_y
-    self._state[2] = temp_state[2]
+    self._state[1] = temp_state[1] + 1
+    self._state[2] = temp_state[2] + 1
+    self._state[3] = temp_state[3] + 1
     return reward
 
   def goal_reached(self, state, target_state):
     goal_reached = 0
     if int(state[0] - 10) < int(target_state[0]) <= int(state[0]):
       if int(state[1] - 10) < int(target_state[1]) <= int(state[1]):
-        goal_reached = 1
+          if target_state[2] == state[2]:
+            goal_reached = 1
     return goal_reached
-
-  def _result_of_action_forward_x(self):
-    forward_movement = velocity * time.clock()
-    return forward_movement
-
-  def _result_of_action_forward_y(self):
-    forward_movement = velocity * time.clock()
-    return forward_movement
-
-  def _result_of_action_direction(self):
-    direction = self._state[2] + 90 # degrees
-    return direction
 
   def add_random_point_to_follow(self):
     """Add a random point to follow in the 2-D co-ordinate system."""
     x_pos = uniform(0.0, 100.0)
     y_pos = uniform (0.0, 100.0)
-    direction = uniform(-180.0, 180.0)
-    if x_pos is not self._state[0] and y_pos is not self._state[1] and direction is not self._state[2]:
-      self._target_state = [x_pos, y_pos, direction]
+    direction = uniform(-45.0, 45.0)
+    steer_direction = uniform(-45.0, 45.0)
+    if x_pos is not self._state[0] and y_pos is not self._state[1] and direction is not self._state[2] and steer_direction is not self._state[3]:
+      self._target_state = [x_pos, y_pos, direction, steer_direction]
 
   def state(self):
     """Return current state."""
@@ -116,6 +110,22 @@ class Vehicle_Controller(object):
 
   def print_current_state_and_target(self):
     print("Current State: ", self._state, "\t", "Target: ", self._target_state)
+
+
+#  --------------------------------------------------- TO BE REMOVED -------------------------------------------------#
+'''
+  def _result_of_action_forward_x(self):
+    forward_movement = velocity * time.clock()
+    return forward_movement
+
+  def _result_of_action_forward_y(self):
+    forward_movement = velocity * time.clock()
+    return forward_movement
+
+  def _result_of_action_direction(self):
+    direction = self._state[2] # degrees
+    return direction
+'''
 
 '''
 def main():

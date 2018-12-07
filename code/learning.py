@@ -1,9 +1,10 @@
-import os
+import os, csv
 import tensorflow as tf
 from model import FeedModel
 import experience_batcher as experbatcher
 from experience_collector import ExperienceCollector
 import play
+NUM_OF_ACTIONS = 15
 
 def make_run_inference(session, model):
   """Make run_inference() function for given session and model."""
@@ -43,15 +44,18 @@ def run_training(train_dir):
         #else:
         print("Starting new training: ", train_dir)
         session.run(model.init)
-
+    print("Aravind, tell me you are here")
     run_inference = make_run_inference (session, model)
+    print ("Before for loop in learning.py 1")
     get_q_values = make_get_q_values (session, model)
     STATE_NORMALIZE_FACTOR = 1
+    print ("Before for loop in learning.py 2")
     experience_collector = ExperienceCollector ()
+    print ("Before for loop in learning.py 3")
     batcher = experbatcher.ExperienceBatcher (experience_collector, run_inference, get_q_values, STATE_NORMALIZE_FACTOR)
-
-    test_experiences = experience_collector.collect (play.random_strategy, 100)
-
+    print ("Before for loop in learning.py 4")
+    test_experiences = experience_collector.collect (play.random_strategy, NUM_OF_ACTIONS)
+    print("Before for loop in learning.py 5")
     for state_batch, targets, actions in batcher.get_batches_stepwise ():
 
         global_step, _ = session.run ([model.global_step, model.train_op],
@@ -66,7 +70,8 @@ def main(args):
     if len(args) != 2:
         print("Usage: %s train_dir" % args[0])
         sys.exit(1)
-    run_training('C:/Users/Aravind/Documents/NCSU/3rd sem/ECE 542/project04/Vehicle_Controller/Dynamic_Vehicle_Control_using_RL/')
+
+    run_training('C:/Users/Aravind/Documents/NCSU/3rd sem/ECE 542/project04/Vehicle_Controller/Dynamic_Vehicle_Control_using_RL/code/traindocs')
 
 
 if __name__ == '__main__':

@@ -6,8 +6,8 @@ from __future__ import print_function
 import tensorflow as tf
 
 
-NUM_ELEMENTS_IN_STATE = 3
-NUM_ACTIONS = 2
+NUM_ELEMENTS_IN_STATE = 4
+NUM_ACTIONS = 16
 
 # Number of hidden units in each hidden layer
 HIDDEN_SIZES = [16, 16]
@@ -24,6 +24,7 @@ class FeedModel(object):
   """Class to construct and collect all relevant tensors of the model."""
 
   def __init__(self):
+    print("It is in model/FeedModel code")
     self.state_batch_placeholder = tf.placeholder(
         tf.float32, shape=(None, NUM_ELEMENTS_IN_STATE))
     self.targets_placeholder = tf.placeholder(tf.float32, shape=(None,))

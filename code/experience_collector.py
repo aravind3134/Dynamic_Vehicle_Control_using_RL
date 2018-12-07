@@ -15,7 +15,7 @@ AVG_KEEP_PROB = 0.04
 MIN_KEEP_PROB = 0.01
 
 class ExperienceCollector(object):
-  """Collects experiences by playing according to a particular strategy."""
+  """Collects experiences by following according to a particular strategy."""
 
 
   def get_keep_probability(self, index, length):
