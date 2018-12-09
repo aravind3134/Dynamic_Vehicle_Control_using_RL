@@ -55,11 +55,11 @@ def Follow(strategy, verbose=False):
   with open (file_name) as f:
       a = csv.reader (f)
   '''
-  initial_state = [6.418457908, 6.614250852, 0.376335979, 0.159791047]
-  final_state = [106.418457908, 106.614250852, 100.376335979, 100.159791047]
+  initial_state = [6.436814971,	6.613150112	, -0.526185188,	0.154138194]
+  final_state = [6.437283741,	6.613119713,	-0.526327424,	0.153992516]
   controller = Vehicle_Controller(initial_state, final_state, stop_simulation = False)
   print("1st checkpoint")
-  state = controller.state().copy()
+  state = controller.state()
   print ("2nd checkpoint")
   print("Current state: ", state)
   game_over = controller.simulation_over()
@@ -73,15 +73,13 @@ def Follow(strategy, verbose=False):
 
     old_state = state
     #print("Tell me you are here in play.py")
-    print("Old state: ", old_state)
     next_action = strategy(
         old_state, range(15))
     print(next_action)
     #print ("Tell me you are here in stage 2 in play.py")
     reward = controller.do_action(next_action)
     print("Reward", reward)
-    state = controller.state().copy()
-    print("State after the action:", state)
+    state = controller.state()
     game_over = controller.simulation_over()
 
     if verbose:

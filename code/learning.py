@@ -71,7 +71,7 @@ def main(args):
         print("Usage: %s train_dir" % args[0])
         sys.exit(1)
 
-    run_training('C:/Users/Aravind/Documents/NCSU/3rd sem/ECE 542/project04/Vehicle_Controller/Dynamic_Vehicle_Control_using_RL/code/traindocs')
+    run_training('/home/ece.ecoprt/Reinforcement learning/Dynamic_Vehicle_Control_using_RL-master/code_aravind/Dynamic_Vehicle_Control_using_RL/code/data')
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
 
 import numpy as np
 from random import uniform
-import time
+import time, math
 import matplotlib.pyplot as plt
 
 # The vehicle moves every time with a constant velocity.
@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt
 # The initial state is fed from the system. The actions based on the current state determines the next state.
 #     NEXT STATE = CURRENT STATE + RESULT OF DIRECTION ACTION
 #
-ACTION_NAMES = ["100", "120", "140", "160", "180", "200", "220", "240", "260", "280", "300", "320", "340", "360", "380", "400", ""]
+ACTION_NAMES = ["100", "120", "140", "160", "180", "200", "220", "240", "260", "280", "300", "320", "340", "360", "380", "400"]
 ACTION_100 = 0
 ACTION_120 = 1
 ACTION_140 = 2
@@ -35,23 +35,27 @@ ACTION_340 = 12
 ACTION_360 = 13
 ACTION_380 = 14
 ACTION_400 = 15
-velocity = 1
+
 NUM_OF_ACTIONS = len(ACTION_NAMES)
+velocity = 1
+ACT_STEERING_MAX_ANGLE_RANGE = math.pi/2
+SMALL = 1e-8
+INCHES2METERS = 25.4/1000.0
+VEHICLEWHEEL2WHEELLENGTH = 72*INCHES2METERS
 
 class Vehicle_Controller(object):
   """ Initializes the Vehicle controller object"""
   def __init__(self, state, target_state , stop_simulation):
     print ("Vehicle Controller Object is created with state: ", state, "and target state: ", target_state)
     self._target_state = target_state
-    self.target_state_direction = target_state[2]
-    target_state[2] = 0
     self.stop_simulation = stop_simulation
     if state is None and target_state is None:
-      self._state = [0, 0, 0, 0]
-      self.add_random_point_to_follow()
+        self._state = [0, 0, 0, 0]
+        self.add_random_point_to_follow()
     else:
-      self._state = state
-      self._target_state = target_state
+        self._state = state
+        self._target_state = target_state
+        self.LastUpdateTime = time.time()
 
   def copy(self):
     """Return a copy of self."""
@@ -68,30 +72,66 @@ class Vehicle_Controller(object):
     """ performs action on the current state. """
     reward = 0
     temp_state = self._state
-    target_reached = self.goal_reached(self._state, self._target_state)
+    print("Current state" ,temp_state)
+    print(action)
+    steer_action = (math.pi/4) + ((int(ACTION_NAMES[action])-100)/(400-100))*(-math.pi/2)
+    timeNow = time.time()
+    deltaT = timeNow - self.LastUpdateTime
+
+    steering = temp_state[2] + action
+
+    if (steering > ACT_STEERING_MAX_ANGLE_RANGE / 2):
+        temp_state[2]= ACT_STEERING_MAX_ANGLE_RANGE / 2
+    if (steering < -ACT_STEERING_MAX_ANGLE_RANGE / 2):
+        temp_state[2] = -ACT_STEERING_MAX_ANGLE_RANGE / 2
+
+    tan_steer = math.tan(steering)
+    if (abs(tan_steer) < SMALL):
+    	tan_steer = SMALL
+
+    sin_steer = math.sin(steering);
+    if (abs(sin_steer) < SMALL):
+    	sin_steer = SMALL;
+
+    backradius = VEHICLEWHEEL2WHEELLENGTH/tan_steer
+    deltalength = velocity*deltaT
+    delta_arc_angle = deltalength / backradius
+    centerx = temp_state[0] - math.sin(temp_state[3])*backradius
+    centery = temp_state[1] + math.cos(temp_state[3])*backradius
+
+    new_heading = temp_state[3] + delta_arc_angle
+    temp_state[0] = centerx + math.sin(new_heading)*backradius
+    temp_state[1] = centery - math.cos(new_heading)*backradius
+
+    if (new_heading > math.pi):
+		temp_state[3] -= 2*math.pi
+
+    if (new_heading< -math.pi):
+        temp_state[3] += 2*math.pi
+
+
+    self.LastUpdateTime = timeNow
+
+    target_reached = self.goal_reached(temp_state, self._target_state)
     if target_reached:
-      reward = 1
-    self.time_at_last_updation = time.time()
-    forward_movement_x = 1
-    self._state[0] = temp_state[0] + 1
-    forward_movement_y = 1
-    self._state[1] = temp_state[1] + 1
-    self._state[2] = temp_state[2] + 1
-    self._state[3] = temp_state[3] + 1
+        reward = 1
+    print("Next state" ,temp_state)
+    self._state = temp_state
     return reward
 
   def goal_reached(self, state, target_state):
     goal_reached = 0
-    if int(state[0] - 10) < int(target_state[0]) <= int(state[0]):
-      if int(state[1] - 10) < int(target_state[1]) <= int(state[1]):
-          if target_state[2] == state[2]:
-            goal_reached = 1
+    if (state[0] - 1) < (target_state[0]) <= (state[0]+1):
+      if (state[1] - 1) < (target_state[1]) <= (state[1]+1):
+          if (state[2] - 0.1) < (target_state[2]) <= (state[2]+ 0.1):
+            if (state[3] - 0.1) < (target_state[3]) <= (state[3]+ 0.1):
+                  goal_reached = 1
     return goal_reached
 
   def add_random_point_to_follow(self):
     """Add a random point to follow in the 2-D co-ordinate system."""
-    x_pos = uniform(0.0, 100.0)
-    y_pos = uniform (0.0, 100.0)
+    x_pos = uniform(-50.0, 50.0)
+    y_pos = uniform (-50.0, 50.0)
     direction = uniform(-45.0, 45.0)
     steer_direction = uniform(-45.0, 45.0)
     if x_pos is not self._state[0] and y_pos is not self._state[1] and direction is not self._state[2] and steer_direction is not self._state[3]:
